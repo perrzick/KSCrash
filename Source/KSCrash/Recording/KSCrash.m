@@ -84,8 +84,10 @@ static NSString* getBasePath()
         KSLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
     }
+
     NSString* pathEnd = [@"KSCrash" stringByAppendingPathComponent:getBundleName()];
-    return [cachePath stringByAppendingPathComponent:pathEnd];
+
+    return [cachePath stringByAppendingPathComponent: [pathEnd stringByReplacingOccurrencesOfString:@" " withString:@"-"]];
 }
 
 
