@@ -1,4 +1,4 @@
-//===--- StringRef.h - Constant String Reference Wrapper --------*- C++ -*-===//
+//===--- KZStringRef.h - Constant String Reference Wrapper --------*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_ADT_STRINGREF_H
-#define LLVM_ADT_STRINGREF_H
+#ifndef LLVM_ADT_KZSTRINGREF_H
+#define LLVM_ADT_KZSTRINGREF_H
 
 #include "Compiler.h"
 #include <algorithm>
@@ -23,22 +23,22 @@ namespace llvm {
   class SmallVectorImpl;
   class APInt;
   class hash_code;
-  class StringRef;
+  class KZStringRef;
 
-  /// Helper functions for StringRef::getAsInteger.
-  bool getAsUnsignedInteger(StringRef Str, unsigned Radix,
+  /// Helper functions for KZStringRef::getAsInteger.
+  bool getAsUnsignedInteger(KZStringRef Str, unsigned Radix,
                             unsigned long long &Result);
 
-  bool getAsSignedInteger(StringRef Str, unsigned Radix, long long &Result);
+  bool getAsSignedInteger(KZStringRef Str, unsigned Radix, long long &Result);
 
-  /// StringRef - Represent a constant reference to a string, i.e. a character
+  /// KZStringRef - Represent a constant reference to a string, i.e. a character
   /// array and a length, which need not be null terminated.
   ///
   /// This class does not own the string data, it is expected to be used in
   /// situations where the character data resides in some other buffer, whose
-  /// lifetime extends past that of the StringRef. For this reason, it is not in
-  /// general safe to store a StringRef.
-  class StringRef {
+  /// lifetime extends past that of the KZStringRef. For this reason, it is not in
+  /// general safe to store a KZStringRef.
+  class KZStringRef {
   public:
     typedef const char *iterator;
     typedef const char *const_iterator;
@@ -65,26 +65,26 @@ namespace llvm {
     /// @{
 
     /// Construct an empty string ref.
-    /*implicit*/ StringRef() : Data(nullptr), Length(0) {}
+    /*implicit*/ KZStringRef() : Data(nullptr), Length(0) {}
 
     /// Construct a string ref from a cstring.
-    /*implicit*/ StringRef(const char *Str)
+    /*implicit*/ KZStringRef(const char *Str)
       : Data(Str) {
-        assert(Str && "StringRef cannot be built from a NULL argument");
+        assert(Str && "KZStringRef cannot be built from a NULL argument");
         Length = ::strlen(Str); // invoking strlen(NULL) is undefined behavior
       }
 
     /// Construct a string ref from a pointer and length.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    /*implicit*/ StringRef(const char *data, size_t length)
+    /*implicit*/ KZStringRef(const char *data, size_t length)
       : Data(data), Length(length) {
         assert((data || length == 0) &&
-        "StringRef cannot be built from a NULL argument with non-null length");
+        "KZStringRef cannot be built from a NULL argument with non-null length");
       }
 
     /// Construct a string ref from an std::string.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    /*implicit*/ StringRef(const std::string &Str)
+    /*implicit*/ KZStringRef(const std::string &Str)
       : Data(Str.data()), Length(Str.length()) {}
 
     /// @}
@@ -131,30 +131,30 @@ namespace llvm {
       return Data[Length-1];
     }
 
-    // copy - Allocate copy in Allocator and return StringRef to it.
-    template <typename Allocator> StringRef copy(Allocator &A) const {
+    // copy - Allocate copy in Allocator and return KZStringRef to it.
+    template <typename Allocator> KZStringRef copy(Allocator &A) const {
       char *S = A.template Allocate<char>(Length);
       std::copy(begin(), end(), S);
-      return StringRef(S, Length);
+      return KZStringRef(S, Length);
     }
 
     /// equals - Check for string equality, this is more efficient than
     /// compare() when the relative ordering of inequal strings isn't needed.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    bool equals(StringRef RHS) const {
+    bool equals(KZStringRef RHS) const {
       return (Length == RHS.Length &&
               compareMemory(Data, RHS.Data, RHS.Length) == 0);
     }
 
     /// equals_lower - Check for string equality, ignoring case.
-    bool equals_lower(StringRef RHS) const {
+    bool equals_lower(KZStringRef RHS) const {
       return Length == RHS.Length && compare_lower(RHS) == 0;
     }
 
     /// compare - Compare two strings; the result is -1, 0, or 1 if this string
     /// is lexicographically less than, equal to, or greater than the \p RHS.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    int compare(StringRef RHS) const {
+    int compare(KZStringRef RHS) const {
       // Check the prefix for a mismatch.
       if (int Res = compareMemory(Data, RHS.Data, std::min(Length, RHS.Length)))
         return Res < 0 ? -1 : 1;
@@ -166,11 +166,11 @@ namespace llvm {
     }
 
     /// compare_lower - Compare two strings, ignoring case.
-    int compare_lower(StringRef RHS) const;
+    int compare_lower(KZStringRef RHS) const;
 
     /// compare_numeric - Compare two strings, treating sequences of digits as
     /// numbers.
-    int compare_numeric(StringRef RHS) const;
+    int compare_numeric(KZStringRef RHS) const;
 
     /// \brief Determine the edit distance between this string and another
     /// string.
@@ -190,7 +190,7 @@ namespace llvm {
     /// or (if \p AllowReplacements is \c true) replacements needed to
     /// transform one of the given strings into the other. If zero,
     /// the strings are identical.
-    unsigned edit_distance(StringRef Other, bool AllowReplacements = true,
+    unsigned edit_distance(KZStringRef Other, bool AllowReplacements = true,
                            unsigned MaxEditDistance = 0) const;
 
     /// str - Get the contents as an std::string.
@@ -222,23 +222,23 @@ namespace llvm {
 
     /// Check if this string starts with the given \p Prefix.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    bool startswith(StringRef Prefix) const {
+    bool startswith(KZStringRef Prefix) const {
       return Length >= Prefix.Length &&
              compareMemory(Data, Prefix.Data, Prefix.Length) == 0;
     }
 
     /// Check if this string starts with the given \p Prefix, ignoring case.
-    bool startswith_lower(StringRef Prefix) const;
+    bool startswith_lower(KZStringRef Prefix) const;
 
     /// Check if this string ends with the given \p Suffix.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    bool endswith(StringRef Suffix) const {
+    bool endswith(KZStringRef Suffix) const {
       return Length >= Suffix.Length &&
         compareMemory(end() - Suffix.Length, Suffix.Data, Suffix.Length) == 0;
     }
 
     /// Check if this string ends with the given \p Suffix, ignoring case.
-    bool endswith_lower(StringRef Suffix) const;
+    bool endswith_lower(KZStringRef Suffix) const;
 
     /// @}
     /// @name String Searching
@@ -263,7 +263,7 @@ namespace llvm {
     ///
     /// \returns The index of the first occurrence of \p Str, or npos if not
     /// found.
-    size_t find(StringRef Str, size_t From = 0) const;
+    size_t find(KZStringRef Str, size_t From = 0) const;
 
     /// Search for the last character \p C in the string.
     ///
@@ -284,7 +284,7 @@ namespace llvm {
     ///
     /// \returns The index of the last occurrence of \p Str, or npos if not
     /// found.
-    size_t rfind(StringRef Str) const;
+    size_t rfind(KZStringRef Str) const;
 
     /// Find the first character in the string that is \p C, or npos if not
     /// found. Same as find.
@@ -296,7 +296,7 @@ namespace llvm {
     /// not found.
     ///
     /// Complexity: O(size() + Chars.size())
-    size_t find_first_of(StringRef Chars, size_t From = 0) const;
+    size_t find_first_of(KZStringRef Chars, size_t From = 0) const;
 
     /// Find the first character in the string that is not \p C or npos if not
     /// found.
@@ -306,7 +306,7 @@ namespace llvm {
     /// \p Chars, or npos if not found.
     ///
     /// Complexity: O(size() + Chars.size())
-    size_t find_first_not_of(StringRef Chars, size_t From = 0) const;
+    size_t find_first_not_of(KZStringRef Chars, size_t From = 0) const;
 
     /// Find the last character in the string that is \p C, or npos if not
     /// found.
@@ -318,7 +318,7 @@ namespace llvm {
     /// found.
     ///
     /// Complexity: O(size() + Chars.size())
-    size_t find_last_of(StringRef Chars, size_t From = npos) const;
+    size_t find_last_of(KZStringRef Chars, size_t From = npos) const;
 
     /// Find the last character in the string that is not \p C, or npos if not
     /// found.
@@ -328,7 +328,7 @@ namespace llvm {
     /// npos if not found.
     ///
     /// Complexity: O(size() + Chars.size())
-    size_t find_last_not_of(StringRef Chars, size_t From = npos) const;
+    size_t find_last_not_of(KZStringRef Chars, size_t From = npos) const;
 
     /// @}
     /// @name Helpful Algorithms
@@ -345,7 +345,7 @@ namespace llvm {
 
     /// Return the number of non-overlapped occurrences of \p Str in
     /// the string.
-    size_t count(StringRef Str) const;
+    size_t count(KZStringRef Str) const;
 
     /// Parse the current string as an integer of the specified radix.  If
     /// \p Radix is specified as zero, this does radix autosensing using
@@ -415,23 +415,23 @@ namespace llvm {
     /// exceeds the number of characters remaining in the string, the string
     /// suffix (starting with \p Start) will be returned.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    StringRef substr(size_t Start, size_t N = npos) const {
+    KZStringRef substr(size_t Start, size_t N = npos) const {
       Start = std::min(Start, Length);
-      return StringRef(Data + Start, std::min(N, Length - Start));
+      return KZStringRef(Data + Start, std::min(N, Length - Start));
     }
 
-    /// Return a StringRef equal to 'this' but with the first \p N elements
+    /// Return a KZStringRef equal to 'this' but with the first \p N elements
     /// dropped.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    StringRef drop_front(size_t N = 1) const {
+    KZStringRef drop_front(size_t N = 1) const {
       assert(size() >= N && "Dropping more elements than exist");
       return substr(N);
     }
 
-    /// Return a StringRef equal to 'this' but with the last \p N elements
+    /// Return a KZStringRef equal to 'this' but with the last \p N elements
     /// dropped.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    StringRef drop_back(size_t N = 1) const {
+    KZStringRef drop_back(size_t N = 1) const {
       assert(size() >= N && "Dropping more elements than exist");
       return substr(0, size()-N);
     }
@@ -447,10 +447,10 @@ namespace llvm {
     /// number of characters remaining in the string, the string suffix
     /// (starting with \p Start) will be returned.
     LLVM_ATTRIBUTE_ALWAYS_INLINE
-    StringRef slice(size_t Start, size_t End) const {
+    KZStringRef slice(size_t Start, size_t End) const {
       Start = std::min(Start, Length);
       End = std::min(std::max(Start, End), Length);
-      return StringRef(Data + Start, End - Start);
+      return KZStringRef(Data + Start, End - Start);
     }
 
     /// Split into two substrings around the first occurrence of a separator
@@ -463,10 +463,10 @@ namespace llvm {
     ///
     /// \param Separator The character to split on.
     /// \returns The split substrings.
-    std::pair<StringRef, StringRef> split(char Separator) const {
+    std::pair<KZStringRef, KZStringRef> split(char Separator) const {
       size_t Idx = find(Separator);
       if (Idx == npos)
-        return std::make_pair(*this, StringRef());
+        return std::make_pair(*this, KZStringRef());
       return std::make_pair(slice(0, Idx), slice(Idx+1, npos));
     }
 
@@ -480,10 +480,10 @@ namespace llvm {
     ///
     /// \param Separator - The string to split on.
     /// \return - The split substrings.
-    std::pair<StringRef, StringRef> split(StringRef Separator) const {
+    std::pair<KZStringRef, KZStringRef> split(KZStringRef Separator) const {
       size_t Idx = find(Separator);
       if (Idx == npos)
-        return std::make_pair(*this, StringRef());
+        return std::make_pair(*this, KZStringRef());
       return std::make_pair(slice(0, Idx), slice(Idx + Separator.size(), npos));
     }
 
@@ -501,8 +501,8 @@ namespace llvm {
     /// \param Separator - The string to split on.
     /// \param MaxSplit - The maximum number of times the string is split.
     /// \param KeepEmpty - True if empty substring should be added.
-    void split(SmallVectorImpl<StringRef> &A,
-               StringRef Separator, int MaxSplit = -1,
+    void split(SmallVectorImpl<KZStringRef> &A,
+               KZStringRef Separator, int MaxSplit = -1,
                bool KeepEmpty = true) const;
 
     /// Split into substrings around the occurrences of a separator character.
@@ -519,7 +519,7 @@ namespace llvm {
     /// \param Separator - The string to split on.
     /// \param MaxSplit - The maximum number of times the string is split.
     /// \param KeepEmpty - True if empty substring should be added.
-    void split(SmallVectorImpl<StringRef> &A, char Separator, int MaxSplit = -1,
+    void split(SmallVectorImpl<KZStringRef> &A, char Separator, int MaxSplit = -1,
                bool KeepEmpty = true) const;
 
     /// Split into two substrings around the last occurrence of a separator
@@ -532,75 +532,75 @@ namespace llvm {
     ///
     /// \param Separator - The character to split on.
     /// \return - The split substrings.
-    std::pair<StringRef, StringRef> rsplit(char Separator) const {
+    std::pair<KZStringRef, KZStringRef> rsplit(char Separator) const {
       size_t Idx = rfind(Separator);
       if (Idx == npos)
-        return std::make_pair(*this, StringRef());
+        return std::make_pair(*this, KZStringRef());
       return std::make_pair(slice(0, Idx), slice(Idx+1, npos));
     }
 
     /// Return string with consecutive characters in \p Chars starting from
     /// the left removed.
-    StringRef ltrim(StringRef Chars = " \t\n\v\f\r") const {
+    KZStringRef ltrim(KZStringRef Chars = " \t\n\v\f\r") const {
       return drop_front(std::min(Length, find_first_not_of(Chars)));
     }
 
     /// Return string with consecutive characters in \p Chars starting from
     /// the right removed.
-    StringRef rtrim(StringRef Chars = " \t\n\v\f\r") const {
+    KZStringRef rtrim(KZStringRef Chars = " \t\n\v\f\r") const {
       return drop_back(Length - std::min(Length, find_last_not_of(Chars) + 1));
     }
 
     /// Return string with consecutive characters in \p Chars starting from
     /// the left and right removed.
-    StringRef trim(StringRef Chars = " \t\n\v\f\r") const {
+    KZStringRef trim(KZStringRef Chars = " \t\n\v\f\r") const {
       return ltrim(Chars).rtrim(Chars);
     }
 
     /// @}
   };
 
-  /// @name StringRef Comparison Operators
+  /// @name KZStringRef Comparison Operators
   /// @{
 
   LLVM_ATTRIBUTE_ALWAYS_INLINE
-  inline bool operator==(StringRef LHS, StringRef RHS) {
+  inline bool operator==(KZStringRef LHS, KZStringRef RHS) {
     return LHS.equals(RHS);
   }
 
   LLVM_ATTRIBUTE_ALWAYS_INLINE
-  inline bool operator!=(StringRef LHS, StringRef RHS) {
+  inline bool operator!=(KZStringRef LHS, KZStringRef RHS) {
     return !(LHS == RHS);
   }
 
-  inline bool operator<(StringRef LHS, StringRef RHS) {
+  inline bool operator<(KZStringRef LHS, KZStringRef RHS) {
     return LHS.compare(RHS) == -1;
   }
 
-  inline bool operator<=(StringRef LHS, StringRef RHS) {
+  inline bool operator<=(KZStringRef LHS, KZStringRef RHS) {
     return LHS.compare(RHS) != 1;
   }
 
-  inline bool operator>(StringRef LHS, StringRef RHS) {
+  inline bool operator>(KZStringRef LHS, KZStringRef RHS) {
     return LHS.compare(RHS) == 1;
   }
 
-  inline bool operator>=(StringRef LHS, StringRef RHS) {
+  inline bool operator>=(KZStringRef LHS, KZStringRef RHS) {
     return LHS.compare(RHS) != -1;
   }
 
-  inline std::string &operator+=(std::string &buffer, StringRef string) {
+  inline std::string &operator+=(std::string &buffer, KZStringRef string) {
     return buffer.append(string.data(), string.size());
   }
 
   /// @}
 
-  /// \brief Compute a hash_code for a StringRef.
-  hash_code hash_value(StringRef S);
+  /// \brief Compute a hash_code for a KZStringRef.
+  hash_code hash_value(KZStringRef S);
 
-  // StringRefs can be treated like a POD type.
+  // KZStringRefs can be treated like a POD type.
   template <typename T> struct isPodLike;
-  template <> struct isPodLike<StringRef> { static const bool value = true; };
+  template <> struct isPodLike<KZStringRef> { static const bool value = true; };
 }
 
 #endif
