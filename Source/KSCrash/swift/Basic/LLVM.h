@@ -31,7 +31,7 @@
 // Forward declarations.
 namespace llvm {
   // Containers.
-  class StringRef;
+  class KZStringRef;
   class Twine;
   template <typename T> class SmallPtrSetImpl;
   template <typename T, unsigned N> class SmallPtrSet;
@@ -41,7 +41,7 @@ namespace llvm {
   template<typename T> class ArrayRef;
   template<typename T> class MutableArrayRef;
   template<typename T> class TinyPtrVector;
-  template<typename T> class Optional;
+  template<typename T> class KZOptional;
   template <typename PT1, typename PT2> class PointerUnion;
 
   // Other common classes.
@@ -61,11 +61,11 @@ namespace swift {
 
   // Containers.
   using llvm::None;
-  using llvm::Optional;
+  using llvm::KZOptional;
   using llvm::SmallPtrSetImpl;
   using llvm::SmallPtrSet;
   using llvm::SmallString;
-  using llvm::StringRef;
+  using llvm::KZStringRef;
   using llvm::Twine;
   using llvm::SmallVectorImpl;
   using llvm::SmallVector;

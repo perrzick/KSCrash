@@ -1,4 +1,4 @@
-//===-- Optional.h - Simple variant for passing optional values ---*- C++ -*-=//
+//===-- KZOptional.h - Simple variant for passing optional values ---*- C++ -*-=//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -7,14 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//  This file provides Optional, a template class modeled in the spirit of
+//  This file provides KZOptional, a template class modeled in the spirit of
 //  OCaml's 'opt' variant.  The idea is to strongly type whether or not
 //  a value can be optional.
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_ADT_OPTIONAL_H
-#define LLVM_ADT_OPTIONAL_H
+#ifndef LLVM_ADT_KZOPTIONAL_H
+#define LLVM_ADT_KZOPTIONAL_H
 
 #include "None.h"
 #include "AlignOf.h"
@@ -26,32 +26,32 @@
 namespace llvm {
 
 template<typename T>
-class Optional {
+class KZOptional {
   AlignedCharArrayUnion<T> storage;
   bool hasVal;
 public:
   typedef T value_type;
 
-  Optional(NoneType) : hasVal(false) {}
-  explicit Optional() : hasVal(false) {}
-  Optional(const T &y) : hasVal(true) {
+  KZOptional(NoneType) : hasVal(false) {}
+  explicit KZOptional() : hasVal(false) {}
+  KZOptional(const T &y) : hasVal(true) {
     new (storage.buffer) T(y);
   }
-  Optional(const Optional &O) : hasVal(O.hasVal) {
+  KZOptional(const KZOptional &O) : hasVal(O.hasVal) {
     if (hasVal)
       new (storage.buffer) T(*O);
   }
 
-  Optional(T &&y) : hasVal(true) {
+  KZOptional(T &&y) : hasVal(true) {
     new (storage.buffer) T(std::forward<T>(y));
   }
-  Optional(Optional<T> &&O) : hasVal(O) {
+  KZOptional(KZOptional<T> &&O) : hasVal(O) {
     if (O) {
       new (storage.buffer) T(std::move(*O));
       O.reset();
     }
   }
-  Optional &operator=(T &&y) {
+  KZOptional &operator=(T &&y) {
     if (hasVal)
       **this = std::move(y);
     else {
@@ -60,7 +60,7 @@ public:
     }
     return *this;
   }
-  Optional &operator=(Optional &&O) {
+  KZOptional &operator=(KZOptional &&O) {
     if (!O)
       reset();
     else {
@@ -78,16 +78,16 @@ public:
     new (storage.buffer) T(std::forward<ArgTypes>(Args)...);
   }
 
-  static inline Optional create(const T* y) {
-    return y ? Optional(*y) : Optional();
+  static inline KZOptional create(const T* y) {
+    return y ? KZOptional(*y) : KZOptional();
   }
 
-  // FIXME: these assignments (& the equivalent const T&/const Optional& ctors)
+  // FIXME: these assignments (& the equivalent const T&/const KZOptional& ctors)
   // could be made more efficient by passing by value, possibly unifying them
   // with the rvalue versions above - but this could place a different set of
   // requirements (notably: the existence of a default ctor) when implemented
   // in that way. Careful SFINAE to avoid such pitfalls would be required.
-  Optional &operator=(const T &y) {
+  KZOptional &operator=(const T &y) {
     if (hasVal)
       **this = y;
     else {
@@ -97,7 +97,7 @@ public:
     return *this;
   }
 
-  Optional &operator=(const Optional &O) {
+  KZOptional &operator=(const KZOptional &O) {
     if (!O)
       reset();
     else
@@ -112,7 +112,7 @@ public:
     }
   }
 
-  ~Optional() {
+  ~KZOptional() {
     reset();
   }
 
@@ -145,83 +145,83 @@ public:
 };
 
 template <typename T> struct isPodLike;
-template <typename T> struct isPodLike<Optional<T> > {
-  // An Optional<T> is pod-like if T is.
+template <typename T> struct isPodLike<KZOptional<T> > {
+  // An KZOptional<T> is pod-like if T is.
   static const bool value = isPodLike<T>::value;
 };
 
-/// \brief Poison comparison between two \c Optional objects. Clients needs to
-/// explicitly compare the underlying values and account for empty \c Optional
+/// \brief Poison comparison between two \c KZOptional objects. Clients needs to
+/// explicitly compare the underlying values and account for empty \c KZOptional
 /// objects.
 ///
 /// This routine will never be defined. It returns \c void to help diagnose
 /// errors at compile time.
 template<typename T, typename U>
-void operator==(const Optional<T> &X, const Optional<U> &Y);
+void operator==(const KZOptional<T> &X, const KZOptional<U> &Y);
 
 template<typename T>
-bool operator==(const Optional<T> &X, NoneType) {
+bool operator==(const KZOptional<T> &X, NoneType) {
   return !X.hasValue();
 }
 
 template<typename T>
-bool operator==(NoneType, const Optional<T> &X) {
+bool operator==(NoneType, const KZOptional<T> &X) {
   return X == None;
 }
 
 template<typename T>
-bool operator!=(const Optional<T> &X, NoneType) {
+bool operator!=(const KZOptional<T> &X, NoneType) {
   return !(X == None);
 }
 
 template<typename T>
-bool operator!=(NoneType, const Optional<T> &X) {
+bool operator!=(NoneType, const KZOptional<T> &X) {
   return X != None;
 }
-/// \brief Poison comparison between two \c Optional objects. Clients needs to
-/// explicitly compare the underlying values and account for empty \c Optional
+/// \brief Poison comparison between two \c KZOptional objects. Clients needs to
+/// explicitly compare the underlying values and account for empty \c KZOptional
 /// objects.
 ///
 /// This routine will never be defined. It returns \c void to help diagnose
 /// errors at compile time.
 template<typename T, typename U>
-void operator!=(const Optional<T> &X, const Optional<U> &Y);
+void operator!=(const KZOptional<T> &X, const KZOptional<U> &Y);
 
-/// \brief Poison comparison between two \c Optional objects. Clients needs to
-/// explicitly compare the underlying values and account for empty \c Optional
+/// \brief Poison comparison between two \c KZOptional objects. Clients needs to
+/// explicitly compare the underlying values and account for empty \c KZOptional
 /// objects.
 ///
 /// This routine will never be defined. It returns \c void to help diagnose
 /// errors at compile time.
 template<typename T, typename U>
-void operator<(const Optional<T> &X, const Optional<U> &Y);
+void operator<(const KZOptional<T> &X, const KZOptional<U> &Y);
 
-/// \brief Poison comparison between two \c Optional objects. Clients needs to
-/// explicitly compare the underlying values and account for empty \c Optional
+/// \brief Poison comparison between two \c KZOptional objects. Clients needs to
+/// explicitly compare the underlying values and account for empty \c KZOptional
 /// objects.
 ///
 /// This routine will never be defined. It returns \c void to help diagnose
 /// errors at compile time.
 template<typename T, typename U>
-void operator<=(const Optional<T> &X, const Optional<U> &Y);
+void operator<=(const KZOptional<T> &X, const KZOptional<U> &Y);
 
-/// \brief Poison comparison between two \c Optional objects. Clients needs to
-/// explicitly compare the underlying values and account for empty \c Optional
+/// \brief Poison comparison between two \c KZOptional objects. Clients needs to
+/// explicitly compare the underlying values and account for empty \c KZOptional
 /// objects.
 ///
 /// This routine will never be defined. It returns \c void to help diagnose
 /// errors at compile time.
 template<typename T, typename U>
-void operator>=(const Optional<T> &X, const Optional<U> &Y);
+void operator>=(const KZOptional<T> &X, const KZOptional<U> &Y);
 
-/// \brief Poison comparison between two \c Optional objects. Clients needs to
-/// explicitly compare the underlying values and account for empty \c Optional
+/// \brief Poison comparison between two \c KZOptional objects. Clients needs to
+/// explicitly compare the underlying values and account for empty \c KZOptional
 /// objects.
 ///
 /// This routine will never be defined. It returns \c void to help diagnose
 /// errors at compile time.
 template<typename T, typename U>
-void operator>(const Optional<T> &X, const Optional<U> &Y);
+void operator>(const KZOptional<T> &X, const KZOptional<U> &Y);
 
 } // end llvm namespace
 

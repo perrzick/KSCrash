@@ -18,9 +18,9 @@
 #include <vector>
 #include <cassert>
 #include <cstdint>
-//#include "llvm/ADT/StringRef.h"
+//#include "llvm/ADT/KZStringRef.h"
 //#include "swift/Basic/Malloc.h"
-#include "StringRef.h"
+#include "KZStringRef.h"
 #include "Malloc.h"
 
 namespace llvm {
@@ -360,7 +360,7 @@ struct NodeFactory {
   static NodePointer create(Node::Kind K, Node::IndexType Index) {
     return NodePointer(new Node(K, Index));
   }
-  static NodePointer create(Node::Kind K, llvm::StringRef Text) {
+  static NodePointer create(Node::Kind K, llvm::KZStringRef Text) {
     return NodePointer(new Node(K, Text));
   }
   static NodePointer create(Node::Kind K, std::string &&Text) {
@@ -368,7 +368,7 @@ struct NodeFactory {
   }
   template <size_t N>
   static NodePointer create(Node::Kind K, const char (&Text)[N]) {
-    return NodePointer(new Node(K, llvm::StringRef(Text)));
+    return NodePointer(new Node(K, llvm::KZStringRef(Text)));
   }
 };
 
@@ -377,7 +377,7 @@ class DemanglerPrinter {
 public:
   DemanglerPrinter() = default;
 
-  DemanglerPrinter &operator<<(llvm::StringRef Value) & {
+  DemanglerPrinter &operator<<(llvm::KZStringRef Value) & {
     Stream.append(Value.data(), Value.size());
     return *this;
   }

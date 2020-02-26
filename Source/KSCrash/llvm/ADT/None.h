@@ -17,7 +17,7 @@
 #define LLVM_ADT_NONE_H
 
 namespace llvm {
-/// \brief A simple null object to allow implicit construction of Optional<T>
+/// \brief A simple null object to allow implicit construction of KZOptional<T>
 /// and similar types without having to spell out the specialization's name.
 enum class NoneType { None };
 const NoneType None = None;
