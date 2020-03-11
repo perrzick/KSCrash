@@ -243,6 +243,11 @@ typedef enum
  */
 - (void) sendAllReportsWithCompletion:(KSCrashReportFilterCompletion) onCompletion;
 
+/** Exposes the `basePath`, the folder where all crash logs are saved.
+ *
+ */
+- (NSString *) basePath;
+
 /** Get all unsent report IDs.
  *
  * @return An array with report IDs.
@@ -297,7 +302,6 @@ typedef enum
             terminateProgram:(BOOL) terminateProgram;
 
 @end
-
 
 //! Project version number for KSCrashFramework.
 FOUNDATION_EXPORT const double KSCrashFrameworkVersionNumber;

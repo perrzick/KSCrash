@@ -318,7 +318,7 @@ static NSString* getBasePath()
 
 - (BOOL) install
 {
-    _monitoring = kscrash_install(self.bundleName.UTF8String,
+    _monitoring = kscrash_install([self.bundleName stringByReplacingOccurrencesOfString:@" " withString:@"-"].UTF8String,
                                           self.basePath.UTF8String);
     if(self.monitoring == 0)
     {
