@@ -46,6 +46,8 @@ typedef enum
     KSCDeleteAlways
 } KSCDeleteBehavior;
 
+typedef void(^kz_OnEventSaved)(NSString *);
+
 /**
  * Reports any crashes that occur in the application.
  *
@@ -166,6 +168,10 @@ typedef enum
  *       Do not modify it in such a case.
  */
 @property(nonatomic,readwrite,assign) KSReportWriteCallback onCrash;
+
+/** Optional callback to invoke whenever a new file is created. Each file contains a uniuqe event ID and the callback gets this ID.
+*/
+@property(nonatomic,readwrite,assign) kz_OnEventSaved onEventSaved;
 
 /** Add a copy of KSCrash's console log messages to the crash report.
  */

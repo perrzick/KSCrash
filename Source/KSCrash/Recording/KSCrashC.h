@@ -42,6 +42,7 @@ extern "C" {
 
 #include <stdbool.h>
 
+typedef void (*KZEventCreatedCallback)(const char *eventID);
 
 /** Install the crash reporter. The reporter will record the next crash and then
  * terminate the program.
@@ -143,6 +144,19 @@ typedef void (*KSReportWrittenCallback)(int64_t reportID);
  * Default: NULL
  */
 void kscrash_setReportWrittenCallback(const KSReportWrittenCallback onReportWrittenNotify);
+
+/** Set the callback to invoke upon finishing writing a crash report.
+*
+* TODO: Test if there's a recommendation here only to call async-safe functions from this function. Check if we may call
+* Objective-C methods.
+*
+* @param onEventCreated Function to call after writing a crash report to
+*                      give the callee an opportunity to react to the report.
+*                      NULL = ignore.
+*
+* Default: NULL
+*/
+void kzcrash_setEventCreatedCallback(const KZEventCreatedCallback onEventCreated);
 
 /** Set if KSLOG console messages should be appended to the report.
  *

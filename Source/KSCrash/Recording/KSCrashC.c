@@ -73,6 +73,7 @@ static char g_consoleLogPath[KSFU_MAX_PATH_LENGTH];
 static KSCrashMonitorType g_monitoring = KSCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[KSFU_MAX_PATH_LENGTH];
 static KSReportWrittenCallback g_reportWrittenCallback;
+static KZEventCreatedCallback g_eventCreatedCallback;
 static KSApplicationState g_lastApplicationState = KSApplicationStateNone;
 
 // ============================================================================
@@ -143,6 +144,11 @@ static void onCrash(struct KSCrash_MonitorContext* monitorContext)
         if(g_reportWrittenCallback)
         {
             g_reportWrittenCallback(reportID);
+        }
+
+        if(g_eventCreatedCallback)
+        {
+            g_eventCreatedCallback(monitorContext->eventID);
         }
     }
 }
@@ -240,6 +246,10 @@ void kscrash_setCrashNotifyCallback(const KSReportWriteCallback onCrashNotify)
 void kscrash_setReportWrittenCallback(const KSReportWrittenCallback onReportWrittenNotify)
 {
     g_reportWrittenCallback = onReportWrittenNotify;
+}
+
+void kzcrash_setEventCreatedCallback(const KZEventCreatedCallback onEventCreated) {
+    g_eventCreatedCallback = onEventCreated;
 }
 
 void kscrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport)

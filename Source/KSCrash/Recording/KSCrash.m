@@ -57,6 +57,13 @@
 
 @end
 
+static void onEventCreated(const char *eventId) {
+    NSString *eventIdString = [NSString stringWithCString: eventId encoding: NSUTF8StringEncoding];
+
+    if ([KSCrash sharedInstance].onEventSaved) {
+        [KSCrash sharedInstance].onEventSaved(eventIdString);
+    }
+}
 
 static NSString* getBundleName()
 {
@@ -139,6 +146,7 @@ static NSString* getBasePath()
     dispatch_once(&onceToken, ^{
         sharedInstance = [[KSCrash alloc] init];
     });
+
     return sharedInstance;
 }
 
@@ -165,6 +173,7 @@ static NSString* getBasePath()
         self.searchQueueNames = NO;
         self.monitoring = KSCrashMonitorTypeProductionSafeMinimal;
     }
+
     return self;
 }
 
@@ -222,6 +231,7 @@ static NSString* getBasePath()
 {
     _onCrash = onCrash;
     kscrash_setCrashNotifyCallback(onCrash);
+    kzcrash_setEventCreatedCallback(onEventCreated);
 }
 
 - (void) setIntrospectMemory:(BOOL) introspectMemory
